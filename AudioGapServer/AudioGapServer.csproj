@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>7e106493-328f-4f28-abd0-6c12654bfc5f</ProjectGuid>
+    <ProjectGuid>{0CD41DF5-A152-40B5-840F-68FFBF40B286}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AudioGapServer</RootNamespace>
