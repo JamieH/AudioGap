@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.ConnectButton = new System.Windows.Forms.Button();
-            this.DiscoveredList = new System.Windows.Forms.ListBox();
             this.AudioDeviceList = new System.Windows.Forms.ComboBox();
             this.listName = new System.Windows.Forms.Label();
-            this.discoveredListLabel = new System.Windows.Forms.Label();
+            this.serverIP = new System.Windows.Forms.Label();
             this.ConStats = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // ConnectButton
             // 
-            this.ConnectButton.Location = new System.Drawing.Point(573, 153);
+            this.ConnectButton.Location = new System.Drawing.Point(573, 62);
             this.ConnectButton.Name = "ConnectButton";
             this.ConnectButton.Size = new System.Drawing.Size(101, 23);
             this.ConnectButton.TabIndex = 0;
@@ -46,18 +46,10 @@
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
-            // DiscoveredList
-            // 
-            this.DiscoveredList.FormattingEnabled = true;
-            this.DiscoveredList.Location = new System.Drawing.Point(12, 25);
-            this.DiscoveredList.Name = "DiscoveredList";
-            this.DiscoveredList.Size = new System.Drawing.Size(662, 95);
-            this.DiscoveredList.TabIndex = 1;
-            // 
             // AudioDeviceList
             // 
             this.AudioDeviceList.FormattingEnabled = true;
-            this.AudioDeviceList.Location = new System.Drawing.Point(89, 126);
+            this.AudioDeviceList.Location = new System.Drawing.Point(89, 35);
             this.AudioDeviceList.Name = "AudioDeviceList";
             this.AudioDeviceList.Size = new System.Drawing.Size(585, 21);
             this.AudioDeviceList.TabIndex = 2;
@@ -65,40 +57,47 @@
             // listName
             // 
             this.listName.AutoSize = true;
-            this.listName.Location = new System.Drawing.Point(9, 129);
+            this.listName.Location = new System.Drawing.Point(9, 38);
             this.listName.Name = "listName";
             this.listName.Size = new System.Drawing.Size(74, 13);
             this.listName.TabIndex = 3;
             this.listName.Text = "Audio Device:";
             // 
-            // discoveredListLabel
+            // serverIP
             // 
-            this.discoveredListLabel.AutoSize = true;
-            this.discoveredListLabel.Location = new System.Drawing.Point(9, 5);
-            this.discoveredListLabel.Name = "discoveredListLabel";
-            this.discoveredListLabel.Size = new System.Drawing.Size(101, 13);
-            this.discoveredListLabel.TabIndex = 4;
-            this.discoveredListLabel.Text = "Discovered servers:";
+            this.serverIP.AutoSize = true;
+            this.serverIP.Location = new System.Drawing.Point(29, 15);
+            this.serverIP.Name = "serverIP";
+            this.serverIP.Size = new System.Drawing.Size(54, 13);
+            this.serverIP.TabIndex = 4;
+            this.serverIP.Text = "Server IP:";
             // 
             // ConStats
             // 
             this.ConStats.AutoSize = true;
-            this.ConStats.Location = new System.Drawing.Point(9, 163);
+            this.ConStats.Location = new System.Drawing.Point(9, 67);
             this.ConStats.Name = "ConStats";
             this.ConStats.Size = new System.Drawing.Size(86, 13);
             this.ConStats.TabIndex = 5;
             this.ConStats.Text = "Connection stats";
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(89, 12);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(585, 20);
+            this.textBox1.TabIndex = 6;
+            // 
             // UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(686, 180);
+            this.ClientSize = new System.Drawing.Size(686, 92);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.ConStats);
-            this.Controls.Add(this.discoveredListLabel);
+            this.Controls.Add(this.serverIP);
             this.Controls.Add(this.listName);
             this.Controls.Add(this.AudioDeviceList);
-            this.Controls.Add(this.DiscoveredList);
             this.Controls.Add(this.ConnectButton);
             this.Name = "UI";
             this.Text = "UI";
@@ -111,10 +110,10 @@
         #endregion
 
         private System.Windows.Forms.Button ConnectButton;
-        private System.Windows.Forms.ListBox DiscoveredList;
         private System.Windows.Forms.ComboBox AudioDeviceList;
         private System.Windows.Forms.Label listName;
-        private System.Windows.Forms.Label discoveredListLabel;
+        private System.Windows.Forms.Label serverIP;
         private System.Windows.Forms.Label ConStats;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
