@@ -30,7 +30,7 @@
         {
             this.button1 = new System.Windows.Forms.Button();
             this.DiscoveredList = new System.Windows.Forms.ListBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.AudioDeviceList = new System.Windows.Forms.ComboBox();
             this.listName = new System.Windows.Forms.Label();
             this.discoveredListLabel = new System.Windows.Forms.Label();
             this.ConStats = new System.Windows.Forms.Label();
@@ -53,13 +53,13 @@
             this.DiscoveredList.Size = new System.Drawing.Size(662, 95);
             this.DiscoveredList.TabIndex = 1;
             // 
-            // comboBox1
+            // AudioDeviceList
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(89, 126);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(585, 21);
-            this.comboBox1.TabIndex = 2;
+            this.AudioDeviceList.FormattingEnabled = true;
+            this.AudioDeviceList.Location = new System.Drawing.Point(89, 126);
+            this.AudioDeviceList.Name = "AudioDeviceList";
+            this.AudioDeviceList.Size = new System.Drawing.Size(585, 21);
+            this.AudioDeviceList.TabIndex = 2;
             // 
             // listName
             // 
@@ -73,7 +73,7 @@
             // discoveredListLabel
             // 
             this.discoveredListLabel.AutoSize = true;
-            this.discoveredListLabel.Location = new System.Drawing.Point(9, 9);
+            this.discoveredListLabel.Location = new System.Drawing.Point(9, 5);
             this.discoveredListLabel.Name = "discoveredListLabel";
             this.discoveredListLabel.Size = new System.Drawing.Size(101, 13);
             this.discoveredListLabel.TabIndex = 4;
@@ -96,11 +96,12 @@
             this.Controls.Add(this.ConStats);
             this.Controls.Add(this.discoveredListLabel);
             this.Controls.Add(this.listName);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.AudioDeviceList);
             this.Controls.Add(this.DiscoveredList);
             this.Controls.Add(this.button1);
             this.Name = "UI";
             this.Text = "UI";
+            this.Load += new System.EventHandler(this.UI_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,7 +111,7 @@
 
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListBox DiscoveredList;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox AudioDeviceList;
         private System.Windows.Forms.Label listName;
         private System.Windows.Forms.Label discoveredListLabel;
         private System.Windows.Forms.Label ConStats;
