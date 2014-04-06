@@ -1,0 +1,16 @@
+diff a/AudioGapClient/AudioGapClient.csproj b/AudioGapClient/AudioGapClient.csproj	(rejected hunks)
+@@ -35,9 +35,14 @@
+      <StartupObject>AudioGapClient.Program</StartupObject>
+    </PropertyGroup>
+    <ItemGroup>
+++<<<<<<< HEAD
+ +    <Reference Include="Bass.Net, Version=2.4.10.3, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+ +      <SpecificVersion>False</SpecificVersion>
+ +      <HintPath>..\Bass.Net.dll</HintPath>
+++=======
++     <Reference Include="NAudio">
++       <HintPath>..\packages\NAudio.1.7\lib\net35\NAudio.dll</HintPath>
+++>>>>>>> parent of 483e99c... Doesn't work with some devices, going to use BASS's implementation as I know it works
+      </Reference>
+      <Reference Include="System" />
+      <Reference Include="System.Core" />
