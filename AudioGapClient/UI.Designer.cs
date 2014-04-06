@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.ConnectButton = new System.Windows.Forms.Button();
             this.DiscoveredList = new System.Windows.Forms.ListBox();
             this.AudioDeviceList = new System.Windows.Forms.ComboBox();
             this.listName = new System.Windows.Forms.Label();
@@ -36,14 +36,15 @@
             this.ConStats = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // button1
+            // ConnectButton
             // 
-            this.button1.Location = new System.Drawing.Point(573, 153);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(101, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Start Streaming";
-            this.button1.UseVisualStyleBackColor = true;
+            this.ConnectButton.Location = new System.Drawing.Point(573, 153);
+            this.ConnectButton.Name = "ConnectButton";
+            this.ConnectButton.Size = new System.Drawing.Size(101, 23);
+            this.ConnectButton.TabIndex = 0;
+            this.ConnectButton.Text = "Start Streaming";
+            this.ConnectButton.UseVisualStyleBackColor = true;
+            this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
             // DiscoveredList
             // 
@@ -98,7 +99,7 @@
             this.Controls.Add(this.listName);
             this.Controls.Add(this.AudioDeviceList);
             this.Controls.Add(this.DiscoveredList);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.ConnectButton);
             this.Name = "UI";
             this.Text = "UI";
             this.Load += new System.EventHandler(this.UI_Load);
@@ -109,7 +110,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button ConnectButton;
         private System.Windows.Forms.ListBox DiscoveredList;
         private System.Windows.Forms.ComboBox AudioDeviceList;
         private System.Windows.Forms.Label listName;
