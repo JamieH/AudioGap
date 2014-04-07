@@ -35,7 +35,6 @@ namespace AudioGapServer
                 var data = server.Receive(ref serverEndPoint);
                 if (data.Length <= 4)
                 {
-                    byte[] decoded = codec.Decode(reconstructed.ToArray(), 0, reconstructed.ToArray().Length);
                     waveProvider.ClearBuffer();
                     if (gotMessages != byteArrayLength)
                         Console.WriteLine("Error: Not enough packets before we got our size packet, got {0}, expected {1}", gotMessages, byteArrayLength);
@@ -49,7 +48,11 @@ namespace AudioGapServer
                 else
                 {
                     Console.WriteLine(data.Length);
+                    //I know I'm not putting it through the codec but if I do it just sounds worse:/
                     waveProvider.AddSamples(data, 0, data.Length);
+                    
+                    //byte[] encoded = codec.Decode(data, 0, data.Length); //using the codec
+                    //waveProvider.AddSamples(encoded, 0, encoded.Length); //perhaps I should only add the samples once I reconstucted what ever is being sent? :/
 
                     reconstructed.AddRange(data);
                     gotMessages++;
