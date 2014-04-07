@@ -5,7 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using AudioGap;
+using Lidgren.Network;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -14,11 +16,16 @@ namespace AudioGapClient
     class Network
     {
         static Codec codec = new Codec();
-        private static IPEndPoint ip;
-        static UdpClient udpClient = new UdpClient();
+        private static NetClient _netClient;
         public static void connect(IPEndPoint endpoint, MMDevice device)
         {
-            ip = endpoint;
+            var config = new NetPeerConfiguration("airgap");
+            _netClient = new NetClient(config);
+            _netClient.Start();
+            _netClient.Connect(endpoint);
+
+
+
             WasapiLoopbackCapture waveIn = new WasapiLoopbackCapture(device);
             waveIn.DataAvailable += SendData;
             waveIn.StartRecording();
@@ -54,19 +61,12 @@ namespace AudioGapClient
         static void SendData(object sender, WaveInEventArgs e)
         {
             byte[] encoded = codec.Encode(e.Buffer, 0, e.BytesRecorded);
-            int arrayCount = (int)Math.Ceiling((double)encoded.Length / 12000);
+            
+            NetOutgoingMessage msg = _netClient.CreateMessage();
+            msg.Write(encoded);
+            _netClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
 
-            var bytesArray = splitByteArray(encoded, 12000);
-
-            byte[] lengthBytes = BitConverter.GetBytes(bytesArray.Length);
-            udpClient.Send(lengthBytes, lengthBytes.Length, ip);
-
-            Console.WriteLine("sending {0}", bytesArray.Length);
-
-            foreach (byte[] bytes in bytesArray)
-            {
-                udpClient.Send(bytes, bytes.Length, ip);
-            }
+            Console.WriteLine("sending {0}", encoded.Length);
         }
     }
 }

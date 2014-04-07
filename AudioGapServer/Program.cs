@@ -3,6 +3,7 @@ using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lidgren.Network;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,48 +19,66 @@ namespace AudioGapServer
         {
             var codec = new Codec();
 
-            UdpClient server = new UdpClient(listenPort);
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, listenPort);
 
-            var reconstructed = new List<byte>();
+            var config = new NetPeerConfiguration("airgap")
+            {
+                Port = listenPort,
+                MaximumConnections = 50,
+                ConnectionTimeout = 5f
+            };
+            var _server = new NetServer(config);
+            _server.Start();
+
+            Console.WriteLine(@"AudioGap Server Started");
             
-            var waveOut = new WaveOut();
-            var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
-            waveOut.Init(waveProvider);
-            waveOut.Play();
+            NetIncomingMessage inc; // Incoming Message
 
-            int byteArrayLength=0;
-            int gotMessages=0;
             while (true)
             {
-                var data = server.Receive(ref serverEndPoint);
-                if (data.Length <= 4)
+                if ((inc = _server.ReadMessage()) == null) continue;
                 {
-                    waveProvider.ClearBuffer();
-                    if (gotMessages != byteArrayLength)
-                        Console.WriteLine("Error: Not enough packets before we got our size packet, got {0}, expected {1}", gotMessages, byteArrayLength);
-
-                    reconstructed = new List<byte>();
-                    gotMessages = 0;
-                    int i = BitConverter.ToInt32(data, 0);
-                    byteArrayLength = i;
-                    Console.WriteLine("New message: {0}", i);
+                    Console.WriteLine(inc.Data.Length);
                 }
-                else
-                {
-                    Console.WriteLine(data.Length);
-                    //I know I'm not putting it through the codec but if I do it just sounds worse:/
-                    waveProvider.AddSamples(data, 0, data.Length);
+        }            
+            //var reconstructed = new List<byte>();
+            
+            //var waveOut = new WaveOut();
+            //var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
+            //waveOut.Init(waveProvider);
+            //waveOut.Play();
+
+            //int byteArrayLength=0;
+            //int gotMessages=0;
+            //while (true)
+            //{
+            //    var data = server.Receive(ref serverEndPoint);
+            //    if (data.Length <= 4)
+            //    {
+            //        waveProvider.ClearBuffer();
+            //        if (gotMessages != byteArrayLength)
+            //            Console.WriteLine("Error: Not enough packets before we got our size packet, got {0}, expected {1}", gotMessages, byteArrayLength);
+
+            //        reconstructed = new List<byte>();
+            //        gotMessages = 0;
+            //        int i = BitConverter.ToInt32(data, 0);
+            //        byteArrayLength = i;
+            //        Console.WriteLine("New message: {0}", i);
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine(data.Length);
+            //        //I know I'm not putting it through the codec but if I do it just sounds worse:/
+            //        waveProvider.AddSamples(data, 0, data.Length);
                     
-                    //byte[] encoded = codec.Decode(data, 0, data.Length); //using the codec
-                    //waveProvider.AddSamples(encoded, 0, encoded.Length); //perhaps I should only add the samples once I reconstucted what ever is being sent? :/
+            //        //byte[] encoded = codec.Decode(data, 0, data.Length); //using the codec
+            //        //waveProvider.AddSamples(encoded, 0, encoded.Length); //perhaps I should only add the samples once I reconstucted what ever is being sent? :/
 
-                    reconstructed.AddRange(data);
-                    gotMessages++;
-                }
-            }
+            //        reconstructed.AddRange(data);
+            //        gotMessages++;
+            //    }
+            //}
 
-            server.Close();
+            //server.Close();
 
         }
     }
