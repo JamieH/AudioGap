@@ -54,10 +54,16 @@ namespace AudioGapClient
         static void SendData(object sender, WaveInEventArgs e)
         {
             byte[] encoded = codec.Encode(e.Buffer, 0, e.BytesRecorded);
+            int arrayCount = (int)Math.Ceiling((double)encoded.Length / 12000);
 
-            int sl = 12000;
+            var bytesArray = splitByteArray(encoded, 12000);
 
-            foreach (byte[] bytes in splitByteArray(encoded, sl))
+            byte[] lengthBytes = BitConverter.GetBytes(bytesArray.Length);
+            udpClient.Send(lengthBytes, lengthBytes.Length, ip);
+
+            Console.WriteLine("sending {0}", bytesArray.Length);
+
+            foreach (byte[] bytes in bytesArray)
             {
                 udpClient.Send(bytes, bytes.Length, ip);
             }
