@@ -37,8 +37,7 @@ namespace AudioGapClient
 
         void ConnectButton_Click(object sender, EventArgs e)
         {
-
-            Network.connect(null, (MMDevice)AudioDeviceList.SelectedItem);
+            Network.connect(new IPEndPoint(IPAddress.Parse(ServerIP.Text), 11000), (MMDevice)AudioDeviceList.SelectedItem);
         }
     }
 }

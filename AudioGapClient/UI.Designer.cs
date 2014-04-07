@@ -31,9 +31,9 @@
             this.ConnectButton = new System.Windows.Forms.Button();
             this.AudioDeviceList = new System.Windows.Forms.ComboBox();
             this.listName = new System.Windows.Forms.Label();
-            this.serverIP = new System.Windows.Forms.Label();
+            this.serverIPlabel = new System.Windows.Forms.Label();
             this.ConStats = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ServerIP = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // ConnectButton
@@ -63,14 +63,14 @@
             this.listName.TabIndex = 3;
             this.listName.Text = "Audio Device:";
             // 
-            // serverIP
+            // serverIPlabel
             // 
-            this.serverIP.AutoSize = true;
-            this.serverIP.Location = new System.Drawing.Point(29, 15);
-            this.serverIP.Name = "serverIP";
-            this.serverIP.Size = new System.Drawing.Size(54, 13);
-            this.serverIP.TabIndex = 4;
-            this.serverIP.Text = "Server IP:";
+            this.serverIPlabel.AutoSize = true;
+            this.serverIPlabel.Location = new System.Drawing.Point(29, 15);
+            this.serverIPlabel.Name = "serverIPlabel";
+            this.serverIPlabel.Size = new System.Drawing.Size(54, 13);
+            this.serverIPlabel.TabIndex = 4;
+            this.serverIPlabel.Text = "Server IP:";
             // 
             // ConStats
             // 
@@ -81,21 +81,22 @@
             this.ConStats.TabIndex = 5;
             this.ConStats.Text = "Connection stats";
             // 
-            // textBox1
+            // ServerIP
             // 
-            this.textBox1.Location = new System.Drawing.Point(89, 12);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(585, 20);
-            this.textBox1.TabIndex = 6;
+            this.ServerIP.Location = new System.Drawing.Point(89, 12);
+            this.ServerIP.Name = "ServerIP";
+            this.ServerIP.Size = new System.Drawing.Size(585, 20);
+            this.ServerIP.TabIndex = 6;
+            this.ServerIP.Text = "127.0.0.1";
             // 
             // UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(686, 92);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.ServerIP);
             this.Controls.Add(this.ConStats);
-            this.Controls.Add(this.serverIP);
+            this.Controls.Add(this.serverIPlabel);
             this.Controls.Add(this.listName);
             this.Controls.Add(this.AudioDeviceList);
             this.Controls.Add(this.ConnectButton);
@@ -112,8 +113,8 @@
         private System.Windows.Forms.Button ConnectButton;
         private System.Windows.Forms.ComboBox AudioDeviceList;
         private System.Windows.Forms.Label listName;
-        private System.Windows.Forms.Label serverIP;
+        private System.Windows.Forms.Label serverIPlabel;
         private System.Windows.Forms.Label ConStats;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox ServerIP;
     }
 }
