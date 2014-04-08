@@ -10,7 +10,7 @@ namespace AudioGap
     {
         public Codec()
         {
-            this.RecordFormat = new WaveFormat(8000, 16, 1);
+            this.RecordFormat = new WaveFormat(192000, 32, 1);
         }
 
         public WaveFormat RecordFormat { get; private set; }

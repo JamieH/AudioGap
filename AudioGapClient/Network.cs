@@ -26,13 +26,10 @@ namespace AudioGapClient
 
 
 
-            var waveIn = new WaveIn();
-            waveIn.BufferMilliseconds = 50;
-            waveIn.DeviceNumber = 1;
-            waveIn.WaveFormat = codec.RecordFormat;
-
+            WasapiLoopbackCapture waveIn = new WasapiLoopbackCapture(device);
             waveIn.DataAvailable += SendData;
             waveIn.StartRecording();
+
         }
 
         static byte[][] splitByteArray(byte[] array, int maxArrayLength)
