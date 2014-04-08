@@ -33,19 +33,27 @@ namespace AudioGapServer
             
             NetIncomingMessage inc; // Incoming Message
 
+            var waveOut = new WaveOut();
+            var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
+            waveOut.Init(waveProvider);
+            waveOut.Play();
+            waveProvider.BufferLength = 2000000;
             while (true)
             {
                 if ((inc = _server.ReadMessage()) == null) continue;
                 {
-                    Console.WriteLine(inc.Data.Length);
+                    if (inc.MessageType == NetIncomingMessageType.Data)
+                    {
+                        
+                        Console.WriteLine(inc.Data.Length);
+                        byte[] decoded = codec.Decode(inc.Data, 0, inc.Data.Length);
+                        waveProvider.AddSamples(decoded, 0, decoded.Length);
+                    }
                 }
         }            
             //var reconstructed = new List<byte>();
             
-            //var waveOut = new WaveOut();
-            //var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
-            //waveOut.Init(waveProvider);
-            //waveOut.Play();
+
 
             //int byteArrayLength=0;
             //int gotMessages=0;
@@ -69,9 +77,8 @@ namespace AudioGapServer
             //        Console.WriteLine(data.Length);
             //        //I know I'm not putting it through the codec but if I do it just sounds worse:/
             //        waveProvider.AddSamples(data, 0, data.Length);
-                    
-            //        //byte[] encoded = codec.Decode(data, 0, data.Length); //using the codec
-            //        //waveProvider.AddSamples(encoded, 0, encoded.Length); //perhaps I should only add the samples once I reconstucted what ever is being sent? :/
+
+
 
             //        reconstructed.AddRange(data);
             //        gotMessages++;

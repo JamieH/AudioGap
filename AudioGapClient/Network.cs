@@ -26,7 +26,11 @@ namespace AudioGapClient
 
 
 
-            WasapiLoopbackCapture waveIn = new WasapiLoopbackCapture(device);
+            var waveIn = new WaveIn();
+            waveIn.BufferMilliseconds = 50;
+            waveIn.DeviceNumber = 1;
+            waveIn.WaveFormat = codec.RecordFormat;
+
             waveIn.DataAvailable += SendData;
             waveIn.StartRecording();
         }
