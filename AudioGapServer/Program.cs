@@ -1,4 +1,5 @@
-﻿using AudioGap;
+﻿using System.IO;
+using AudioGap;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace AudioGapServer
 {
-    class Program
+    internal class Program
     {
         private const int listenPort = 11000;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var codec = new Codec();
 
@@ -30,10 +31,11 @@ namespace AudioGapServer
             _server.Start();
 
             Console.WriteLine(@"AudioGap Server Started");
-            
+
             NetIncomingMessage inc; // Incoming Message
 
             var waveOut = new WaveOut();
+            waveOut.DeviceNumber = 1;
             var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
             waveOut.Init(waveProvider);
             waveOut.Play();
@@ -44,49 +46,26 @@ namespace AudioGapServer
                 {
                     if (inc.MessageType == NetIncomingMessageType.Data)
                     {
-                        
-                        Console.WriteLine(inc.Data.Length);
-                        
-                        waveProvider.AddSamples(inc.Data, 0, inc.Data.Length);
+                        if (inc.LengthBytes <= 100)
+                        {
+                            try
+                            {
+                                WaveFormat wf = new WaveFormat(new BinaryReader(new MemoryStream(inc.Data)));
+                                waveProvider = new BufferedWaveProvider(wf);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(inc.Data.Length);
+                            waveProvider.AddSamples(inc.Data, 0, inc.Data.Length);
+                        }
                     }
                 }
-        }            
-            //var reconstructed = new List<byte>();
-            
-
-
-            //int byteArrayLength=0;
-            //int gotMessages=0;
-            //while (true)
-            //{
-            //    var data = server.Receive(ref serverEndPoint);
-            //    if (data.Length <= 4)
-            //    {
-            //        waveProvider.ClearBuffer();
-            //        if (gotMessages != byteArrayLength)
-            //            Console.WriteLine("Error: Not enough packets before we got our size packet, got {0}, expected {1}", gotMessages, byteArrayLength);
-
-            //        reconstructed = new List<byte>();
-            //        gotMessages = 0;
-            //        int i = BitConverter.ToInt32(data, 0);
-            //        byteArrayLength = i;
-            //        Console.WriteLine("New message: {0}", i);
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine(data.Length);
-            //        //I know I'm not putting it through the codec but if I do it just sounds worse:/
-            //        waveProvider.AddSamples(data, 0, data.Length);
-
-
-
-            //        reconstructed.AddRange(data);
-            //        gotMessages++;
-            //    }
-            //}
-
-            //server.Close();
-
+            }
         }
     }
 }

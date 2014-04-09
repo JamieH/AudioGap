@@ -30,7 +30,12 @@ namespace AudioGapClient
 
 
             waveIn = new WasapiLoopbackCapture(device);
-            waveIn.DataAvailable += SendData;            
+            waveIn.DataAvailable += SendData;
+            var ms = new MemoryStream();
+            var bw = new BinaryWriter(ms);
+            waveIn.WaveFormat.Serialize(new BinaryWriter(new MemoryStream()));
+
+
             waveIn.StartRecording();
         }
 
@@ -47,10 +52,9 @@ namespace AudioGapClient
             }
 
             NetOutgoingMessage msg = _netClient.CreateMessage();
-            var dat = codec.Encode(sendStream.GetBuffer(), 0, sendStream.GetBuffer().Length);
-            msg.Write(dat);
+            msg.Write(sendStream.GetBuffer());
             _netClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
-            Console.WriteLine("sending {0}", dat.Length);
+            Console.WriteLine("sending {0}", sendStream.GetBuffer().Length);
 
         }
     }
