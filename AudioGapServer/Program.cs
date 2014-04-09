@@ -37,7 +37,7 @@ namespace AudioGapServer
             var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
             waveOut.Init(waveProvider);
             waveOut.Play();
-            waveProvider.BufferLength = 2000000;
+            waveProvider.BufferLength = 20000000;
             while (true)
             {
                 if ((inc = _server.ReadMessage()) == null) continue;
@@ -46,8 +46,8 @@ namespace AudioGapServer
                     {
                         
                         Console.WriteLine(inc.Data.Length);
-                        byte[] decoded = codec.Decode(inc.Data, 0, inc.Data.Length);
-                        waveProvider.AddSamples(decoded, 0, decoded.Length);
+                        
+                        waveProvider.AddSamples(inc.Data, 0, inc.Data.Length);
                     }
                 }
         }            
