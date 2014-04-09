@@ -26,16 +26,21 @@ namespace AudioGapClient
             _netClient = new NetClient(config);
             _netClient.Start();
             _netClient.Connect(endpoint);
-
+            Thread.Sleep(250);
 
 
             waveIn = new WasapiLoopbackCapture(device);
             waveIn.DataAvailable += SendData;
+
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
-            waveIn.WaveFormat.Serialize(new BinaryWriter(new MemoryStream()));
+            waveIn.WaveFormat.Serialize(bw);
 
-
+            NetOutgoingMessage msg = _netClient.CreateMessage();
+            msg.Write(ms.ToArray());
+            Console.WriteLine(msg.LengthBytes);
+            _netClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
+            Thread.Sleep(250);
             waveIn.StartRecording();
         }
 

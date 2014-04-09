@@ -37,10 +37,7 @@ namespace AudioGapServer
             var waveOut = new WaveOut();
             waveOut.DeviceNumber = 1;
             var waveProvider = new BufferedWaveProvider(codec.RecordFormat);
-            waveOut.Init(waveProvider);
-            waveOut.Play();
-            waveProvider.BufferLength = 20000000;
-            while (true)
+                        while (true)
             {
                 if ((inc = _server.ReadMessage()) == null) continue;
                 {
@@ -51,11 +48,15 @@ namespace AudioGapServer
                             try
                             {
                                 WaveFormat wf = new WaveFormat(new BinaryReader(new MemoryStream(inc.Data)));
+                                Console.WriteLine("Using WaveFormat {0}", wf.ToString());
                                 waveProvider = new BufferedWaveProvider(wf);
-                            }
-                            catch (Exception)
-                            {
+                                waveOut.Init(waveProvider);
+                                waveOut.Play();
 
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
                             }
                         }
                         else
