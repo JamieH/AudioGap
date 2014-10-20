@@ -47,7 +47,7 @@ namespace AudioGapServer
                         {
                             try
                             {
-                                WaveFormat wf = new WaveFormat(new BinaryReader(new MemoryStream(inc.Data)));
+                                WaveFormat wf = new WaveFormat(new BinaryReader(new MemoryStream(inc.ReadBytes(inc.LengthBytes))));
                                 Console.WriteLine("Using WaveFormat {0}", wf.ToString());
                                 waveProvider = new BufferedWaveProvider(wf);
                                 waveOut.Init(waveProvider);
@@ -61,8 +61,9 @@ namespace AudioGapServer
                         }
                         else
                         {
-                            Console.WriteLine(inc.Data.Length);
-                            waveProvider.AddSamples(inc.Data, 0, inc.Data.Length);
+                            var data = inc.ReadBytes(inc.LengthBytes);
+                            Console.WriteLine(inc.LengthBytes);
+                            waveProvider.AddSamples(data, 0, data.Length);
                         }
                     }
                 }
