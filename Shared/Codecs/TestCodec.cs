@@ -15,7 +15,7 @@ namespace AudioGap.Shared.Codecs
 
         public int SampleRate
         {
-            get { return 0; }
+            get { return 11025; }
         }
 
         public int Channels

@@ -27,10 +27,10 @@ namespace AudioGap.Client
             _client.Start();
 
             _waveIn = new WasapiLoopbackCapture(device);
+            _codec = Codec.GetCodec(codec);
 
             _sourceFormat = _waveIn.WaveFormat;
-            _targetFormat = new WaveFormat(44100, Math.Min(2, _sourceFormat.Channels)); // format to convert to
-            _codec = Codec.GetCodec(codec);
+            _targetFormat = new WaveFormat(_codec.SampleRate, _codec.Channels); // format to convert to
             
             _waveIn.DataAvailable += SendData;
             // TODO: RecordingStopped is called when you change the audio device settings, should recover from that
