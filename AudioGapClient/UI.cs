@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi;
+using AudioGap.Shared;
 
 namespace AudioGap.Client
 {
@@ -22,12 +23,17 @@ namespace AudioGap.Client
 
             AudioDeviceList.DataSource = deviceList;
             AudioDeviceList.DisplayMember = "FriendlyName";
+
+            CodecListBox.DataSource = AudioGap.Shared.Codec.CodecTypes.ToList();
+            CodecListBox.DisplayMember = "Key";
+            CodecListBox.ValueMember = "Key";
+
         }
 
         void ConnectButton_Click(object sender, EventArgs e)
         {
             // TODO: this button can be clicked multiple times (and the result isn't pretty)
-            Network.Connect(new IPEndPoint(IPAddress.Parse(ServerIP.Text), 11000), (MMDevice)AudioDeviceList.SelectedItem);
+            Network.Connect(new IPEndPoint(IPAddress.Parse(ServerIP.Text), 11000), (MMDevice)AudioDeviceList.SelectedItem, (String)CodecListBox.SelectedValue);
         }
     }
 }

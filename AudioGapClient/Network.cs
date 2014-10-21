@@ -4,6 +4,7 @@ using System.Net;
 using Lidgren.Network;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using AudioGap.Shared;
 
 namespace AudioGap.Client
 {
@@ -14,8 +15,9 @@ namespace AudioGap.Client
 
         private static WaveFormat _sourceFormat;
         private static WaveFormat _targetFormat;
+        private static ICodec _codec;
 
-        public static void Connect(IPEndPoint endpoint, MMDevice device)
+        public static void Connect(IPEndPoint endpoint, MMDevice device, String codec)
         {
             var config = new NetPeerConfiguration("airgap");
 
@@ -23,14 +25,22 @@ namespace AudioGap.Client
             _client.RegisterReceivedCallback(MessageReceived);
 
             _client.Start();
-            _client.Connect(endpoint);
 
             _waveIn = new WasapiLoopbackCapture(device);
-            _waveIn.DataAvailable += SendData;
-            // TODO: RecordingStopped is called when you change the audio device settings, should recover from that
 
             _sourceFormat = _waveIn.WaveFormat;
             _targetFormat = new WaveFormat(44100, Math.Min(2, _sourceFormat.Channels)); // format to convert to
+            _codec = Codec.GetCodec(codec);
+            
+            _waveIn.DataAvailable += SendData;
+            // TODO: RecordingStopped is called when you change the audio device settings, should recover from that
+
+            NetOutgoingMessage formatMsg = _client.CreateMessage();
+            formatMsg.Write(_targetFormat.Channels);
+            formatMsg.Write(_targetFormat.SampleRate);
+            formatMsg.Write(codec);
+
+            _client.Connect(endpoint, formatMsg);
         }
 
         private static void MessageReceived(object state)
@@ -55,19 +65,8 @@ namespace AudioGap.Client
                         switch (status)
                         {
                             case NetConnectionStatus.Connected:
-                                {
-                                    var memoryStream = new MemoryStream();
-                                    var binaryWriter = new BinaryWriter(memoryStream);
-                                    _targetFormat.Serialize(binaryWriter);
-
-                                    NetOutgoingMessage formatMsg = _client.CreateMessage();
-                                    formatMsg.Write(memoryStream.ToArray());
-                                    _client.SendMessage(formatMsg, NetDeliveryMethod.ReliableOrdered);
-
-                                    _waveIn.StartRecording();
-                                    break;
-                                }
-
+                                _waveIn.StartRecording();
+                                break;
                             case NetConnectionStatus.Disconnected:
                                 {
                                     Environment.Exit(0); // TODO: show status on UI
@@ -123,9 +122,11 @@ namespace AudioGap.Client
 
                 a -= 1;
             }
+            var enc = _codec.Encode(buffer, p);
 
-            NetOutgoingMessage msg = _client.CreateMessage(p);
-            msg.Write(buffer, 0, p); // p contains the length of the useful buffer data
+            NetOutgoingMessage msg = _client.CreateMessage(enc.Length);
+            msg.Write(enc, 0, enc.Length); // p contains the length of the useful buffer data
+
             _client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
 
             Console.WriteLine("Sent: {0}", p);

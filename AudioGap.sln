@@ -4,8 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "AudioGapClient\Client.csproj", "{B66FAE06-EE00-4DCD-B233-150541EABCFD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A8E3688F-BE17-4F01-88F7-697124012ACA} = {A8E3688F-BE17-4F01-88F7-697124012ACA}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "AudioGapServer\Server.csproj", "{0CD41DF5-A152-40B5-840F-68FFBF40B286}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A8E3688F-BE17-4F01-88F7-697124012ACA} = {A8E3688F-BE17-4F01-88F7-697124012ACA}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{A8E3688F-BE17-4F01-88F7-697124012ACA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +29,10 @@ Global
 		{0CD41DF5-A152-40B5-840F-68FFBF40B286}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CD41DF5-A152-40B5-840F-68FFBF40B286}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CD41DF5-A152-40B5-840F-68FFBF40B286}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8E3688F-BE17-4F01-88F7-697124012ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E3688F-BE17-4F01-88F7-697124012ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E3688F-BE17-4F01-88F7-697124012ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E3688F-BE17-4F01-88F7-697124012ACA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

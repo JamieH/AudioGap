@@ -3,31 +3,32 @@ using System.IO;
 using System.Threading;
 using Lidgren.Network;
 using NAudio.Wave;
+using AudioGap.Shared;
 
 namespace AudioGap.Server
 {
     internal class Program
     {
-        private const int Port = 11000;
+        private const int port = 11000;
 
+        private static BufferedWaveProvider waveProvider = null;
+        private static ICodec codec = null;
+        private static WaveOut waveOut = new WaveOut();
         private static void Main(string[] args)
         {
             var config = new NetPeerConfiguration("airgap")
             {
-                Port = Port,
+                Port = port,
                 MaximumConnections = 50,
                 ConnectionTimeout = 5f
             };
 
+            config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
+
             var server = new NetServer(config);
             server.Start();
-
             Console.WriteLine("AudioGap Server Started");
-
-            var waveOut = new WaveOut();
             waveOut.DeviceNumber = 0; // TODO: need an option for this
-
-            BufferedWaveProvider waveProvider = null;
 
             while (true)
             {
@@ -38,30 +39,54 @@ namespace AudioGap.Server
                     Thread.Sleep(1);
                     continue;
                 }
-
-                if (msg.MessageType != NetIncomingMessageType.Data)
-                    continue;
-
-                if (waveProvider == null)
+                switch (msg.MessageType)
                 {
-                    var msgBytes = msg.ReadBytes(msg.LengthBytes);
-                    var msgReader = new BinaryReader(new MemoryStream(msgBytes));
-                    var waveFormat = new WaveFormat(msgReader);
-
-                    Console.WriteLine("Using WaveFormat {0}", waveFormat);
-
-                    waveProvider = new BufferedWaveProvider(waveFormat);
-                    waveOut.Init(waveProvider);
-                    waveOut.Play();
-                }
-                else
-                {
-                    Console.WriteLine("Received: {0}", msg.LengthBytes);
-
-                    var data = msg.ReadBytes(msg.LengthBytes);
-                    waveProvider.AddSamples(data, 0, data.Length);
+                    case NetIncomingMessageType.StatusChanged:
+                        var status = (NetConnectionStatus)msg.ReadByte();
+                        string reason = msg.ReadString();
+                        Console.WriteLine("New status: " + status + " (" + reason + ")");
+                    break;
+                    case NetIncomingMessageType.ConnectionApproval:
+                        SetupAudio(msg);
+                        msg.SenderConnection.Approve();
+                        break;
+                    case NetIncomingMessageType.Data:
+                        if(msg.SenderConnection.Status == NetConnectionStatus.Connected)
+                            HandleAudioPacket(msg);
+                        break;
+                    default:
+                        Console.WriteLine("Unhandled type: " + msg.MessageType);
+                        break;
                 }
             }
+        }
+
+        private static void SetupAudio(NetIncomingMessage msg)
+        {
+            var channels = msg.ReadInt32();
+            var rate = msg.ReadInt32();
+            var codecName = msg.ReadString();
+
+            var waveFormat = new WaveFormat(rate, channels);
+
+            codec = Codec.GetCodec(codecName);
+
+            Console.WriteLine("Using WaveFormat {0}", waveFormat);
+            Console.WriteLine("Using Codec: {0}", codec.Name);
+
+            waveProvider = new BufferedWaveProvider(waveFormat);
+            waveOut.Init(waveProvider);
+            waveOut.Play();
+        }
+
+        private static void HandleAudioPacket(NetIncomingMessage msg)
+        {
+            Console.WriteLine("Received: {0}", msg.LengthBytes);
+
+            var data = msg.ReadBytes(msg.LengthBytes);
+            var decoded = codec.Decode(data);
+
+            waveProvider.AddSamples(decoded, 0, decoded.Length);
         }
     }
 }
