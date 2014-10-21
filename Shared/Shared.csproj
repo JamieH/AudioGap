@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NSpeex">
+      <HintPath>..\Libraries\NSpeex.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Codec.cs" />
+    <Compile Include="Codecs\Speex_32khz.cs" />
+    <Compile Include="Codecs\Raw.cs" />
     <Compile Include="Codecs\TestCodec.cs" />
     <Compile Include="ICodec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
