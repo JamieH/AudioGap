@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Threading;
 using Lidgren.Network;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -21,10 +20,10 @@ namespace AudioGapClient
             var config = new NetPeerConfiguration("airgap");
 
             _client = new NetClient(config);
+            _client.RegisterReceivedCallback(MessageReceived);
+
             _client.Start();
             _client.Connect(endpoint);
-
-            Thread.Sleep(250); // TODO: replace this with a proper wait for connect
 
             _waveIn = new WasapiLoopbackCapture(device);
             _waveIn.DataAvailable += SendData;
@@ -32,16 +31,57 @@ namespace AudioGapClient
 
             _sourceFormat = _waveIn.WaveFormat;
             _targetFormat = new WaveFormat(44100, Math.Min(2, _sourceFormat.Channels)); // format to convert to
+        }
 
-            var memoryStream = new MemoryStream();
-            var binaryWriter = new BinaryWriter(memoryStream);
-            _targetFormat.Serialize(binaryWriter);
+        private static void MessageReceived(object state)
+        {
+            NetIncomingMessage msg;
+            while ((msg = _client.ReadMessage()) != null)
+            {
+                switch (msg.MessageType)
+                {
+                    case NetIncomingMessageType.VerboseDebugMessage:
+                    case NetIncomingMessageType.DebugMessage:
+                    case NetIncomingMessageType.WarningMessage:
+                    case NetIncomingMessageType.ErrorMessage:
+                        Console.WriteLine(msg.ReadString());
+                        break;
 
-            NetOutgoingMessage msg = _client.CreateMessage();
-            msg.Write(memoryStream.ToArray());
-            _client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
+                    case NetIncomingMessageType.StatusChanged:
+                        var status = (NetConnectionStatus)msg.ReadByte();
+                        string reason = msg.ReadString();
+                        Console.WriteLine("New status: " + status + " (" + reason + ")");
 
-            _waveIn.StartRecording();
+                        switch (status)
+                        {
+                            case NetConnectionStatus.Connected:
+                                {
+                                    var memoryStream = new MemoryStream();
+                                    var binaryWriter = new BinaryWriter(memoryStream);
+                                    _targetFormat.Serialize(binaryWriter);
+
+                                    NetOutgoingMessage formatMsg = _client.CreateMessage();
+                                    formatMsg.Write(memoryStream.ToArray());
+                                    _client.SendMessage(formatMsg, NetDeliveryMethod.ReliableOrdered);
+
+                                    _waveIn.StartRecording();
+                                    break;
+                                }
+
+                            case NetConnectionStatus.Disconnected:
+                                {
+                                    Environment.Exit(0); // TODO: show status on UI
+                                    break;
+                                }
+                        }
+                        break;
+
+                    default:
+                        Console.WriteLine("Unhandled type: " + msg.MessageType);
+                        break;
+                }
+                _client.Recycle(msg);
+            }
         }
 
         private static void SendData(object sender, WaveInEventArgs e)
