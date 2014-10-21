@@ -4,7 +4,7 @@ using System.Net;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi;
 
-namespace AudioGapClient
+namespace AudioGap.Client
 {
     public partial class UI : Form
     {

@@ -5,7 +5,7 @@ using Lidgren.Network;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
-namespace AudioGapClient
+namespace AudioGap.Client
 {
     class Network
     {

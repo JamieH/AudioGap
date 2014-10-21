@@ -7,8 +7,8 @@
     <ProjectGuid>{0CD41DF5-A152-40B5-840F-68FFBF40B286}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AudioGapServer</RootNamespace>
-    <AssemblyName>AudioGapServer</AssemblyName>
+    <RootNamespace>AudioGap</RootNamespace>
+    <AssemblyName>Server</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>AudioGap.Server.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Lidgren.Network">

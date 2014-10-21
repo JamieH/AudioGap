@@ -4,7 +4,7 @@ using System.Threading;
 using Lidgren.Network;
 using NAudio.Wave;
 
-namespace AudioGapServer
+namespace AudioGap.Server
 {
     internal class Program
     {

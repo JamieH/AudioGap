@@ -1,4 +1,4 @@
-﻿namespace AudioGapClient
+﻿namespace AudioGap.Client
 {
     partial class UI
     {
