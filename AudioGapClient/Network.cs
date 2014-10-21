@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using AudioGap;
 using Lidgren.Network;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -16,51 +10,85 @@ namespace AudioGapClient
 {
     class Network
     {
-        static Codec codec = new Codec();
-        private static NetClient _netClient;
-        private static WasapiLoopbackCapture waveIn;
+        private static NetClient _client;
+        private static WasapiLoopbackCapture _waveIn;
 
-        public static void connect(IPEndPoint endpoint, MMDevice device)
+        private static WaveFormat _sourceFormat;
+        private static WaveFormat _targetFormat;
+
+        public static void Connect(IPEndPoint endpoint, MMDevice device)
         {
             var config = new NetPeerConfiguration("airgap");
-            _netClient = new NetClient(config);
-            _netClient.Start();
-            _netClient.Connect(endpoint);
-            Thread.Sleep(250);
 
+            _client = new NetClient(config);
+            _client.Start();
+            _client.Connect(endpoint);
 
-            waveIn = new WasapiLoopbackCapture(device);
-            waveIn.DataAvailable += SendData;
+            Thread.Sleep(250); // TODO: replace this with a proper wait for connect
 
-            var ms = new MemoryStream();
-            var bw = new BinaryWriter(ms);
-            waveIn.WaveFormat.Serialize(bw);
+            _waveIn = new WasapiLoopbackCapture(device);
+            _waveIn.DataAvailable += SendData;
+            // TODO: RecordingStopped is called when you change the audio device settings, should recover from that
 
-            NetOutgoingMessage msg = _netClient.CreateMessage();
-            msg.Write(ms.ToArray());
-            Console.WriteLine(msg.LengthBytes);
-            _netClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
-            Thread.Sleep(250);
-            waveIn.StartRecording();
+            _sourceFormat = _waveIn.WaveFormat;
+            _targetFormat = new WaveFormat(44100, Math.Min(2, _sourceFormat.Channels)); // format to convert to
+
+            var memoryStream = new MemoryStream();
+            var binaryWriter = new BinaryWriter(memoryStream);
+            _targetFormat.Serialize(binaryWriter);
+
+            NetOutgoingMessage msg = _client.CreateMessage();
+            msg.Write(memoryStream.ToArray());
+            _client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
+
+            _waveIn.StartRecording();
         }
 
         private static void SendData(object sender, WaveInEventArgs e)
         {
-            MemoryStream sendStream = new MemoryStream(e.BytesRecorded);
+            if (e.BytesRecorded == 0)
+                return;
 
-            for (int i = 0; i < e.BytesRecorded / 4; i++)
+            // buffer contains all the samples for all the channels
+            // it looks like this for 16bit stereo:
+            // [L1][L1][R1][R1][L2][L2][R2][R2]...
+            var buffer = e.Buffer;
+
+            var bytesPerSample = (_sourceFormat.BitsPerSample / 8) * _sourceFormat.Channels;
+
+            // to change sample rate we must skip/repeat samples, this number tells when to do that
+            var inputRatio = (float)_sourceFormat.SampleRate / _targetFormat.SampleRate;
+
+            var a = 0f;
+            var p = 0;
+
+            // loop through the samples, "i" will be set to the first byte of the first channel
+            for (int i = 0; i < e.BytesRecorded; i += bytesPerSample)
             {
+                while (a <= 1)
+                {
+                    for (var j = 0; j < _targetFormat.Channels; j++)
+                    {
+                        // TODO: this *might* not work for everyone, some drivers may give us shorts, who knows
+                        var sample = BitConverter.ToSingle(buffer, i + sizeof(float) * j);
+                        var sampleShort = (short)(sample * short.MaxValue);
 
-                float sample = BitConverter.ToSingle(e.Buffer, i * 4);
-                short sampleShort = (short)(sample * 32768);
-                sendStream.Write(BitConverter.GetBytes(sampleShort), 0, 2);
+                        // TODO: using the same buffer wont work for people who use lower quality audio than the target format
+                        buffer[p++] = (byte)(sampleShort & 0xFF);
+                        buffer[p++] = (byte)(sampleShort >> 8);
+                    }
+
+                    a += inputRatio;
+                }
+
+                a -= 1;
             }
 
-            NetOutgoingMessage msg = _netClient.CreateMessage();
-            msg.Write(sendStream.GetBuffer());
-            _netClient.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
-            Console.WriteLine("sending {0}", sendStream.GetBuffer().Length);
+            NetOutgoingMessage msg = _client.CreateMessage(p);
+            msg.Write(buffer, 0, p); // p contains the length of the useful buffer data
+            _client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
 
+            Console.WriteLine("Sent: {0}", p);
         }
     }
 }
