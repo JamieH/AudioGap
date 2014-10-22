@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Codec.cs" />
-    <Compile Include="Codecs\Speex_32khz.cs" />
+    <Compile Include="Codecs\Speex32kHz.cs" />
     <Compile Include="Codecs\Raw.cs" />
     <Compile Include="Codecs\TestCodec.cs" />
     <Compile Include="ICodec.cs" />

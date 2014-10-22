@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace AudioGap.Shared.Codecs
 {
     class Raw : ICodec
     {
         public string Name
+        {
+            get { return "Raw"; }
+        }
+        public string DisplayName
         {
             get { return "Raw"; }
         }

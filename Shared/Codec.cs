@@ -2,38 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AudioGap.Shared;
 
 namespace AudioGap.Shared
 {
     public class Codec
     {
-        public static Dictionary<string, Type> CodecTypes
+        private static readonly Dictionary<string, ICodec> Codecs;
+
+        static Codec()
         {
-            get
-            {
-                return
-                    Assembly.GetExecutingAssembly()
-                        .GetTypes()
-                        .Where(c => c.GetInterfaces().Contains(typeof (ICodec)))
-                        .ToDictionary(o => o.Name);
-            }
+            Codecs = Assembly.GetExecutingAssembly()
+                             .GetTypes()
+                             .Where(c => c.GetInterfaces().Contains(typeof(ICodec)))
+                             .ToDictionary(t => t.Name, t => (ICodec)Activator.CreateInstance(t));
         }
 
-        public static ICodec GetCodec(string name)
+        public static ICodec Get(string name)
         {
-            var types = Assembly.GetExecutingAssembly().GetTypes();
-            foreach (Type codec in types.Where(codec => codec.GetInterfaces().Contains(typeof(ICodec))))
-            {
-                if (codec.Name == name)
-                {
-                    return (ICodec)Activator.CreateInstance(codec);
-                }
-            }
+            ICodec codec;
+            if (!Codecs.TryGetValue(name, out codec))
+                throw new Exception("The codec you were looking for can't be found!");
 
-            throw new Exception("The codec you were looking for can't be found!");
+            return codec;
+        }
+
+        public static IList<ICodec> List
+        {
+            get { return Codecs.Values.ToList(); }
         }
     }
 }

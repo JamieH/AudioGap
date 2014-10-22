@@ -17,7 +17,7 @@ namespace AudioGap.Client
         private static WaveFormat _targetFormat;
         private static ICodec _codec;
 
-        public static void Connect(IPEndPoint endpoint, MMDevice device, String codec)
+        public static void Connect(IPEndPoint endpoint, MMDevice device, ICodec codec)
         {
             var config = new NetPeerConfiguration("airgap");
 
@@ -27,18 +27,19 @@ namespace AudioGap.Client
             _client.Start();
 
             _waveIn = new WasapiLoopbackCapture(device);
-            _codec = Codec.GetCodec(codec);
+            _codec = codec;
 
             _sourceFormat = _waveIn.WaveFormat;
             _targetFormat = new WaveFormat(_codec.SampleRate, _codec.Channels); // format to convert to
             
             _waveIn.DataAvailable += SendData;
+            _waveIn.RecordingStopped += (sender, args) => Console.WriteLine("Stopped");
             // TODO: RecordingStopped is called when you change the audio device settings, should recover from that
 
             NetOutgoingMessage formatMsg = _client.CreateMessage();
             formatMsg.Write(_targetFormat.Channels);
             formatMsg.Write(_targetFormat.SampleRate);
-            formatMsg.Write(codec);
+            formatMsg.Write(codec.Name);
 
             _client.Connect(endpoint, formatMsg);
         }
@@ -98,6 +99,9 @@ namespace AudioGap.Client
             // to change sample rate we must skip/repeat samples, this number tells when to do that
             var inputRatio = (float)_sourceFormat.SampleRate / _targetFormat.SampleRate;
 
+            // combine left and right channels if we're moving down to mono
+            var combineLandR = _targetFormat.Channels == 1 && _sourceFormat.Channels >= 2;
+
             var a = 0f;
             var p = 0;
 
@@ -110,6 +114,13 @@ namespace AudioGap.Client
                     {
                         // TODO: this *might* not work for everyone, some drivers may give us shorts, who knows
                         var sample = BitConverter.ToSingle(buffer, i + sizeof(float) * j);
+
+                        if (combineLandR)
+                        {
+                            sample += BitConverter.ToSingle(buffer, i + sizeof(float) * (j + 1));
+                            sample /= 2;
+                        }
+
                         var sampleShort = (short)(sample * short.MaxValue);
 
                         // TODO: using the same buffer wont work for people who use lower quality audio than the target format
@@ -122,6 +133,7 @@ namespace AudioGap.Client
 
                 a -= 1;
             }
+
             var enc = _codec.Encode(buffer, p);
 
             NetOutgoingMessage msg = _client.CreateMessage(enc.Length);
@@ -129,7 +141,7 @@ namespace AudioGap.Client
 
             _client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
 
-            Console.WriteLine("Sent: {0}", p);
+            Console.WriteLine("Sent: {0}", enc.Length);
         }
     }
 }

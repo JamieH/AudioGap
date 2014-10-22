@@ -39,21 +39,32 @@ namespace AudioGap.Server
                     Thread.Sleep(1);
                     continue;
                 }
+
                 switch (msg.MessageType)
                 {
+                    case NetIncomingMessageType.VerboseDebugMessage:
+                    case NetIncomingMessageType.DebugMessage:
+                    case NetIncomingMessageType.WarningMessage:
+                    case NetIncomingMessageType.ErrorMessage:
+                        Console.WriteLine(msg.ReadString());
+                        break;
+
                     case NetIncomingMessageType.StatusChanged:
                         var status = (NetConnectionStatus)msg.ReadByte();
                         string reason = msg.ReadString();
                         Console.WriteLine("New status: " + status + " (" + reason + ")");
-                    break;
+                        break;
+
                     case NetIncomingMessageType.ConnectionApproval:
                         SetupAudio(msg);
                         msg.SenderConnection.Approve();
                         break;
+
                     case NetIncomingMessageType.Data:
-                        if(msg.SenderConnection.Status == NetConnectionStatus.Connected)
+                        if (msg.SenderConnection.Status == NetConnectionStatus.Connected)
                             HandleAudioPacket(msg);
                         break;
+
                     default:
                         Console.WriteLine("Unhandled type: " + msg.MessageType);
                         break;
@@ -69,7 +80,7 @@ namespace AudioGap.Server
 
             var waveFormat = new WaveFormat(rate, channels);
 
-            codec = Codec.GetCodec(codecName);
+            codec = Codec.Get(codecName);
 
             Console.WriteLine("Using WaveFormat {0}", waveFormat);
             Console.WriteLine("Using Codec: {0}", codec.Name);
